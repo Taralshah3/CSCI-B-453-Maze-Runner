@@ -36,9 +36,11 @@
     <ImplicitlyExpandDesignTimeFacades>false</ImplicitlyExpandDesignTimeFacades>
   </PropertyGroup>
   <ItemGroup>
+     <Compile Include="Assets\AI.cs" />
      <Compile Include="Assets\Game.cs" />
      <Compile Include="Assets\MazeCell.cs" />
      <Compile Include="Assets\MazeWall.cs" />
+     <Compile Include="Assets\Player.cs" />
     <Reference Include="UnityEngine">
         <HintPath>D:/Documents/2020.1.3f1/Editor/Data/Managed/UnityEngine/UnityEngine.dll</HintPath>
     </Reference>

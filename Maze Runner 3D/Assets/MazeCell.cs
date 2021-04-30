@@ -21,6 +21,13 @@ public class MazeCell : MonoBehaviour
     public MazeWall southWall;
     public MazeWall westWall;
 
+    //variables for A* pathfinding AI 
+    public int f = 0;
+    public int g = 0;
+    public int h = 0;
+
+    public ArrayList neighbors;
+    public MazeCell previous;
 
     //don't know if current walls will be deleted or not 
     void Start()
