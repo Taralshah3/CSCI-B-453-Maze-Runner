@@ -107,6 +107,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ce6593dc60034094d8ef5cb412f9c038, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isGameOver: 0
   rb: {fileID: 0}
 --- !u!54 &7338891809896889850
 Rigidbody:
