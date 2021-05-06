@@ -9,32 +9,59 @@ using UnityEngine.SceneManagement;
 
 public class Game : MonoBehaviour
 {
+    //used to instantiate the maze cells
     [SerializeField] MazeCell cellPrefab;
+
+    //used to instantiate the AI
     [SerializeField] AI AIPrefab;
+
+    //used to hold the text that displays "Game Over" when the player loses the game
     [SerializeField] GameObject _gameOverText;
 
-    bool AICreated = false;
-    bool playerCreated = false;
-     AI currentAI;
+    //used to instantiate the player
     [SerializeField] Player playerPrefab;
+
+
+    //check to see if the AI is created
+    bool AICreated = false;
+
+    //check to see if the player is created
+    bool playerCreated = false;
+
+    //holds the current AI object
+     AI currentAI;
+    
+    //holds the current player object
     Player currentPlayer;
+
+    //holds the size of the maze you want to create
     int x_size, z_size;
+
+    //two dimensional array of maze cells in the current maze
     MazeCell[,] mazeCurrent;
     MazeCell currentCell;
+
+    //stack used for the creation of the maze 
     Stack<MazeCell> cellStack = new Stack<MazeCell>();
 
     //stacks used for A* path-finding
     ArrayList openStack = new ArrayList();
     ArrayList closedStack = new ArrayList();
+
+    //used to represent the starting point for the AI in the maze
     
     public MazeCell start;
-    public MazeCell end;
-    public MazeCell playerEnd;
-    //public int levelsSurvived = 0;
-    // Start is called before the first frame update
 
+    //used to represent the ending point for the AI in the maze
+    public MazeCell end;
+
+    //used to represent the ending point for the player in the maze
+    public MazeCell playerEnd;
+    
     public int numberRows = 10;
     public int numberCols = 10;
+
+    //used to store the path that the AI should travel to complete the maze
     public ArrayList finalPath = new ArrayList();
     
     void Start()
@@ -45,26 +72,16 @@ public class Game : MonoBehaviour
         currentCell = mazeCurrent[0,0];
         playerEnd = mazeCurrent[0, numberCols-1];
 
-        //AIPathfinding();
         createPlayer();
-        
-        
-        
-
-        
-        
     }
+
     //provides the path for the AI to follow to the goal using A*
     //current start point is 0,0 whereas the end point is numberRows-1, numberCols-1 
     void AIPathfinding() {
-        //Debug.Log("AI Pathfinding start");
-        //Task.Delay(100000);
-        
         //starting index of AI
         start = mazeCurrent[0,0];
         start.gameObject.transform.GetChild(0).GetComponent<Renderer>().material.color = Color.yellow;
 
-        //stops at this line of code for some reason?
         openStack.Add(start);
         
         //ending index of AI 
@@ -74,7 +91,6 @@ public class Game : MonoBehaviour
         while(openStack.Count > 0) {
             int highestNeighbor = 0;
 
-            //MazeCell test = openStack.Pop();
             for(int i = 0; i < openStack.Count; i++) {
                 MazeCell current = (MazeCell)openStack[i];
                 MazeCell neighbor = (MazeCell)openStack[highestNeighbor];
@@ -89,7 +105,6 @@ public class Game : MonoBehaviour
             MazeCell currentCell = (MazeCell)openStack[highestNeighbor];
 
             if(currentCell == end) {
-                //Debug.Log("DONE");
                 finalPath = new ArrayList();
                 MazeCell tempCell = currentCell;
                 finalPath.Add(tempCell);
@@ -109,7 +124,6 @@ public class Game : MonoBehaviour
                 }
 
                 startAI();
-                //createPlayer();
 
             }
 
@@ -142,10 +156,13 @@ public class Game : MonoBehaviour
         
     }
 
+
+    //used as the heuristic for the A* algorithm
     public int ManhattanDistance(MazeCell neighbor, MazeCell end) {
         return Math.Abs(neighbor.x_value - end.x_value) + Math.Abs(neighbor.z_value - end.z_value);
     }
 
+    //adds the relevant neighbors of each cell to each maze cell object
     public void AddNeighborsToCells() {
 
         for(int i = 0; i < numberRows; i++) {
@@ -189,45 +206,40 @@ public class Game : MonoBehaviour
                 
             }
         }
-        /*ArrayList startNeighbors = mazeCurrent[0,0].neighbors;
-        for(int v = 0; v < startNeighbors.Count; v++) {
-            MazeCell mazeA = (MazeCell)startNeighbors[v];
-            Debug.Log(mazeA.x_value + ", " + mazeA.z_value);
-        }*/
         
     }
 
     // Update is called once per frame
-    //supposed to update the current cell, idk if it is working or not though
-    //might need to change where this block of code is
     void Update()
     {
         if(Input.GetKeyDown(KeyCode.R)){
-             Debug.Log("RESTART");
-             //_gameOverText.SetActive(false);
              Application.LoadLevel(0);
          }
 
-
+        //initiates game over if the AI wins the level
         if(AICreated) {
             if(didAIWin()) {
-                 Debug.Log("AI WON!");
                  initiateGameOver();
             }
         }
+
+        //creates a new level if the player beats the AI in the level
         if(playerCreated) {
             if(didPlayerWin()) {
-                Debug.Log("PLAYER WON!");
-                //levelsSurvived += 1;
                 Application.LoadLevel(0);
             }
 
         }
+
         //checks to see if AI won
         currentCell.visited = true;
+        
 
+        //As maze is being built, makes the base color of the maze red
         currentCell.gameObject.transform.GetChild(0).GetComponent<Renderer>().material.color = Color.red;
 
+
+        //iteratively goes throughout the process of removing walls and making a "maze" after the base maze (no walls removed) has been created
         MazeCell currentNeighbor = getRandomNeighbor(currentCell.x_value,currentCell.z_value);
         if(currentNeighbor != null) {
             MazeCell nextCell = getRandomNeighbor(currentCell.x_value,currentCell.z_value);
@@ -236,15 +248,12 @@ public class Game : MonoBehaviour
             nextCell.gameObject.transform.GetChild(0).GetComponent<Renderer>().material.color = Color.red;
 
             cellStack.Push(currentCell);
-            //nextCell.gameObject.GetComponent<Renderer>().material.color = new Color(1, 1, 1);
+           
 
             removeWall(currentCell,nextCell);
-            //Destroy(currentCell.gameObject);
-            //Debug.Log(currentCell);
-
+           
             currentCell = nextCell;
     
-            //Debug.Log("X value: " + currentNeighbor.x_value  + "Y value: " + currentNeighbor.z_value);
         } else if(cellStack.Count > 0) {
             currentCell = cellStack.Pop();
             
@@ -257,12 +266,12 @@ public class Game : MonoBehaviour
 
     }
 
+    //checks to see if a set of walls should be removed between two cells, and if so, removes them based on the directions they are in.
+    //used for maze creation
     void removeWall(MazeCell currentCell, MazeCell nextCell) {
         int xDiff = currentCell.x_value - nextCell.x_value;
         int zDiff = currentCell.z_value - nextCell.z_value;
 
-        //Debug.Log("XDIFF: " + xDiff);
-        //Debug.Log("ZDiff: " + zDiff);
 
         if(xDiff > 0) {
             currentCell.canWest = false;
@@ -299,6 +308,7 @@ public class Game : MonoBehaviour
 
     }
     
+    //initializes the process to create the maze 
     void createMaze(int x_size, int z_size) {
         this.x_size = x_size;
         this.z_size = z_size;
@@ -314,9 +324,9 @@ public class Game : MonoBehaviour
             }
         }
 
-        //Debug.Log("Create Maze Done");
     }
 
+    //gets random neighbor of a current cell for maze creation
     MazeCell getRandomNeighbor(int x_point, int z_point) {
         List<MazeCell> neighbors = new List<MazeCell>();
 
@@ -361,6 +371,7 @@ public class Game : MonoBehaviour
         
 
     }
+    //checks to see if a certain x and z coordinate is within the confines of the maze
     bool isInGrid(int x_point, int z_point) {
         if((x_point >= 0 & x_point < x_size) & (z_point >= 0 & z_point < z_size)) {
             return true;
@@ -368,6 +379,7 @@ public class Game : MonoBehaviour
             return false;
         }
     }
+    //creates the AI and starts its pathfinding toward the end of the maze
     public void startAI() {
         currentAI = Instantiate(AIPrefab) as AI;
         AICreated = true;

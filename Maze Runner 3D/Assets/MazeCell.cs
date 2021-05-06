@@ -6,6 +6,8 @@ public class MazeCell : MonoBehaviour
 {
     [SerializeField] MazeWall wallPrefab;
     // Start is called before the first frame update
+
+    //boolean variables that represent if we can spawn a wall in that direction
     public bool canNorth = true;
     public bool canEast = true;
     public bool canSouth = true;
@@ -13,30 +15,36 @@ public class MazeCell : MonoBehaviour
 
     public bool visited = false;
 
+    //represents the x_value and z_value of that current cell
     public int x_value;
     public int z_value;
     
+    //represents the wall objects themselves that are instantiated for each cell
     public MazeWall northWall;
     public MazeWall eastWall;
     public MazeWall southWall;
     public MazeWall westWall;
 
-    //variables for A* pathfinding AI 
+    //variables for A* pathfinding AI, these are used to compute the next optimal cell to go to 
     public int f = 0;
     public int g = 0;
     public int h = 0;
+    
 
+    //keeps the neighbors of the current cell
     public ArrayList neighbors;
+
+    //keeps a pointer to the cell that came previously in the A* pathfinding path
     public MazeCell previous;
 
-    //don't know if current walls will be deleted or not 
+
+    //when the cell is spawned, instantiates a wall in each direction for the cell
     void Start()
     {
         if(canNorth) {
             //creates all the walls
             northWall = Instantiate(wallPrefab) as MazeWall;
             northWall.createWall(this);
-        //northWall.transform.localPosition = Quaternion.Euler(0f, 90f, 0f);
         }
         if(canEast) {
             eastWall = Instantiate(wallPrefab) as MazeWall;
